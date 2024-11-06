@@ -1,0 +1,26 @@
+[
+    {
+        "userKey": "QLFqggncKwH7Q23x",
+        "discordID": "609728408112332811",
+        "userID": "2673048",
+        "userCat": "busts",
+        "goalRanking": 250,
+        "webhookUrl": "https://discord.com/api/webhooks/1091641344428093440/M6-6WUwqsZo8nbR3NSsMamxnznzruH7ZfT9L_XlaEmy1Dh6ytckJof_ZR0K0x2TYQi03"
+    },
+    {
+        "userKey": "5KCJquRYywOSD1wP",
+        "discordID": "312305920971374602",
+        "userID": "2783199",
+        "userCat": "awards",
+        "goalRanking": 1000,
+        "webhookUrl": "https://discord.com/api/webhooks/1091641344428093440/M6-6WUwqsZo8nbR3NSsMamxnznzruH7ZfT9L_XlaEmy1Dh6ytckJof_ZR0K0x2TYQi03"
+    },
+    {
+        "userKey": "uGf9KUb1q2jzEKjm",
+        "discordID": "312547054092288011",
+        "userID": "2371919",
+        "userCat": "networth",
+        "goalRanking": 100,
+        "webhookUrl": "https://discord.com/api/webhooks/1091641344428093440/M6-6WUwqsZo8nbR3NSsMamxnznzruH7ZfT9L_XlaEmy1Dh6ytckJof_ZR0K0x2TYQi03"
+    }
+]

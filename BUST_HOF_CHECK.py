@@ -5,6 +5,8 @@ import os
 import json
 import matplotlib.pyplot as plt
 
+WEBHOOK_URL = "https://discord.com/api/webhooks/1091641344428093440/M6-6WUwqsZo8nbR3NSsMamxnznzruH7ZfT9L_XlaEmy1Dh6ytckJof_ZR0K0x2TYQi03"  # Discord webhook URL
+
 # Function to check if the script already ran today based on log file
 def last_run_date(log_file):
     if os.path.exists(log_file):
@@ -26,15 +28,15 @@ def fetch_data(url):
     return response.json()
 
 # Extract the relevant stats from user data
-def get_user_stats(user_data):
-    busts_value = user_data["hof"]["busts"]["value"]
-    busts_rank = user_data["hof"]["busts"]["rank"]
+def get_user_stats(user_data,cat):
+    busts_value = user_data["hof"][cat]["value"]
+    busts_rank = user_data["hof"][cat]["rank"]
     return busts_value, busts_rank
 
 # Extract required busts for a given position (dynamic position based on JSON input)
-def get_position_busts(hof_data, goal_ranking):
+def get_position_busts(hof_data, goal_ranking,cat):
     for position_data in hof_data["hof"]:
-        if position_data["rank"] == goal_ranking:
+        if position_data["position"] == goal_ranking:
             return position_data["value"]
     return None
 
@@ -45,7 +47,7 @@ def log_data(log_file, current_rank, bust_count, busts_needed):
         writer.writerow([datetime.datetime.now().strftime('%d-%m-%Y %H:%M'), current_rank, bust_count, busts_needed])
 
 # Plot the progress
-def plot_progress(log_file, goal_ranking, webhook_url):
+def plot_progress(log_file, goal_ranking, webhook_url,discordID,cat):
     dates = []
     bust_counts = []
     targets = []
@@ -60,11 +62,11 @@ def plot_progress(log_file, goal_ranking, webhook_url):
             targets.append(int(row[3]))
 
     plt.figure(figsize=(10, 6))
-    plt.plot(dates, bust_counts, label="Bust Count")
+    plt.plot(dates, bust_counts, label=f"{cat} Count")
     plt.plot(dates, targets, 'r--', label=f"Target (Position {goal_ranking})")
     plt.xlabel("Date")
-    plt.ylabel("People Busted")
-    plt.title(f"Bust Progress for Position {goal_ranking} Over Time")
+    plt.ylabel(cat)
+    plt.title(f"{cat} Progress for Position {goal_ranking} Over Time")
     plt.legend()
     plt.grid()
 
@@ -73,20 +75,32 @@ def plot_progress(log_file, goal_ranking, webhook_url):
     plt.close()  # Close the plot to release resources
 
     # Send the plot to Discord
-    send_to_discord(plot_filename, webhook_url)
+    send_to_discord(webhook_url,discordID,plot_filename)
 
     # Delete the temporary plot file
     if os.path.exists(plot_filename):
         os.remove(plot_filename)
 
 # Send the generated plot to Discord
-def send_to_discord(image_file, webhook_url):
+def send_to_discord(webhook_url,discordID, image_file=None,msg=None):
+    if image_file is None:
+        data= {
+            'content': f'<@{discordID}>\n{msg}'  }
+        try:
+            response = requests.post(webhook_url, data=data)
+        except Exception as e:
+            print(f"Failed to send the message. Error: {e}")
+        if response.status_code == 200:
+            print("Successfully sent the message to Discord!")
+        else:
+            print(f"Failed to send the message. Status code: {response.status_code}, Response: {response.text}")
+        return
     with open(image_file, 'rb') as f:
         files = {
             'file': (image_file, f, 'image/png')
         }
         data = {
-            'content': '<@609728408112332811>'  # Mention the user in the message
+            'content': f'<@{discordID}>{msg if msg else ""}'  # Mention the user in the message
         }
         response = requests.post(webhook_url, data=data, files=files)
         if response.status_code == 200:
@@ -102,14 +116,15 @@ def process_user_data():
 
     WRITE=False
     for user in users:
-        log_file = f"logs/{user_id}_{user_cat}_{goal_ranking}.csv"
-        if not last_run_date(log_file):
-            continue
         # Check and create log file if it doesn't exist
         user_id = user['userID']
         user_cat = user['userCat']
         goal_ranking = user['goalRanking']
         webhook_url = user['webhookUrl']
+        discordID=user['discordID']
+        log_file = f"logs/{user_id}_{user_cat}_{goal_ranking}.csv"
+        if not last_run_date(log_file):
+            continue
 
         if not WRITE and "logFile" not in user:
             WRITE=True
@@ -118,21 +133,24 @@ def process_user_data():
         user_data = fetch_data(f"https://api.torn.com/v2/user/?selections=hof&key={user['userKey']}&id={user_id}")
         hof_data = fetch_data(f"https://api.torn.com/v2/torn/?selections=hof&key={user['userKey']}&limit=1&offset={goal_ranking-1}&cat={user_cat}")
 
+        for request in [user_data, hof_data]:
+            if "error" in request:
+                send_to_discord(WEBHOOK_URL,discordID=discordID, msg=f"Error: {request['error']}\n{request}")
+                continue
+
         # Get user stats and required busts
-        busts_value, current_rank = get_user_stats(user_data)
-        required_busts = get_position_busts(hof_data, goal_ranking)
+        value, current_rank = get_user_stats(user_data,user_cat)
+        required_busts = get_position_busts(hof_data, goal_ranking,user_cat)
 
         if required_busts is None:
             print(f"Goal ranking {goal_ranking} not found in the Hall of Fame.")
             continue
 
         # Calculate busts needed to reach goal ranking
-        busts_needed = required_busts - busts_value
-        print(f"Current rank: {current_rank}, Busts: {busts_value}")
-        print(f"Busts needed to reach goal ranking {goal_ranking}: {busts_needed}")
+        needed = required_busts - value
         # Log the data
-        log_data(log_file, current_rank, busts_value, busts_needed)
-        plot_progress(log_file, goal_ranking, webhook_url)
+        log_data(log_file, current_rank, value, needed)
+        plot_progress(log_file, goal_ranking, webhook_url,discordID,user_cat)
     if WRITE:
         with open('checkers.json','w') as f:
             json.dump(users, f, indent=4)
