@@ -12,7 +12,7 @@ def last_run_date(log_file):
     if os.path.exists(log_file):
         with open(log_file, "r") as file:
             reader = list(csv.reader(file))
-            if len(reader) > 1:  # Check if there's at least one data row
+            if len(reader) >= 1:  # Check if there's at least one data row
                 last_entry = reader[-1][0]
                 last_run_timestamp = datetime.datetime.strptime(last_entry, '%d-%m-%Y %H:%M')
                 # If the date has not changed since the last log, exit the script
@@ -54,7 +54,6 @@ def plot_progress(log_file, goal_ranking, webhook_url,discordID,cat):
 
     with open(log_file, "r") as file:
         reader = csv.reader(file)
-        next(reader)  # Skip header
         for row in reader:
             date = datetime.datetime.strptime(row[0], '%d-%m-%Y %H:%M')
             dates.append(date)
@@ -122,12 +121,15 @@ def process_user_data():
         goal_ranking = user['goalRanking']
         webhook_url = user['webhookUrl']
         discordID=user['discordID']
-        log_file = f"logs/{user_id}_{user_cat}_{goal_ranking}.csv"
+        if 'logFile' in user:
+            log_file = user['logFile']
+        else:
+            log_file = f"logs/{user_id}_{user_cat}_{goal_ranking}.csv"
+            user['logFile']=log_file
+            WRITE=True
         if not last_run_date(log_file):
             continue
 
-        if not WRITE and "logFile" not in user:
-            WRITE=True
 
         # Fetch user data and HoF data
         user_data = fetch_data(f"https://api.torn.com/v2/user/?selections=hof&key={user['userKey']}&id={user_id}")
