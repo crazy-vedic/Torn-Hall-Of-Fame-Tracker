@@ -5,15 +5,17 @@
         "userID": "2673048",
         "userCat": "busts",
         "goalRanking": 250,
-        "webhookUrl": "https://discord.com/api/webhooks/1091641344428093440/M6-6WUwqsZo8nbR3NSsMamxnznzruH7ZfT9L_XlaEmy1Dh6ytckJof_ZR0K0x2TYQi03"
+        "webhookUrl": "https://discord.com/api/webhooks/1326047029259927592/QIX5VhlyGLxDAjX_qWNYjmLk6mPGoxjX5lIf0KQzrn3o-0Ex2qSQmXCuGF29WqdRvfhO",
+        "logFile": "logs/2673048_busts_250.csv"
     },
     {
         "userKey": "5KCJquRYywOSD1wP",
         "discordID": "312305920971374602",
         "userID": "2783199",
-        "userCat": "awards",
+        "userCat": "level",
         "goalRanking": 1000,
-        "webhookUrl": "https://discord.com/api/webhooks/1091641344428093440/M6-6WUwqsZo8nbR3NSsMamxnznzruH7ZfT9L_XlaEmy1Dh6ytckJof_ZR0K0x2TYQi03"
+        "webhookUrl": "https://discord.com/api/webhooks/1326047029259927592/QIX5VhlyGLxDAjX_qWNYjmLk6mPGoxjX5lIf0KQzrn3o-0Ex2qSQmXCuGF29WqdRvfhO",
+        "logFile": "logs/2783199_awards_1000.csv"
     },
     {
         "userKey": "uGf9KUb1q2jzEKjm",
@@ -21,6 +23,7 @@
         "userID": "2371919",
         "userCat": "networth",
         "goalRanking": 100,
-        "webhookUrl": "https://discord.com/api/webhooks/1091641344428093440/M6-6WUwqsZo8nbR3NSsMamxnznzruH7ZfT9L_XlaEmy1Dh6ytckJof_ZR0K0x2TYQi03"
+        "webhookUrl": "https://discord.com/api/webhooks/1326047029259927592/QIX5VhlyGLxDAjX_qWNYjmLk6mPGoxjX5lIf0KQzrn3o-0Ex2qSQmXCuGF29WqdRvfhO",
+        "logFile": "logs/2371919_networth_100.csv"
     }
 ]
